@@ -1,0 +1,467 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Simulatore della moneta</title>
+<meta name="description" content="Il simulatore di «La moneta che gira»: fino a tre monete quantistiche, le mosse X, H, Z e CNOT, la mano e il disturbo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --carta:#FBF8F3; --carta2:#F2EEE6; --superficie:#FFFFFF; --inchiostro:#1B2233; --soft:#434B5C; --muto:#80838E;
+  --filetto:#D9D3C7; --griglia:rgba(27,34,51,.05);
+  --testa:#0B96A3; --testa-t:#DDF2F4; --croce:#C2187A; --croce-t:#F8E1EE; --rumore:#D9442B; --rame:#B7792B;
+  --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans:"Inter", "Helvetica Neue", Arial, sans-serif;
+  --mono:"JetBrains Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --carta:#0E1530; --carta2:#151E3E; --superficie:#18223F; --inchiostro:#ECE8E0; --soft:#BFC3CF; --muto:#8B91A4;
+    --filetto:#2C375C; --griglia:rgba(236,232,224,.04);
+    --testa:#3CC6D2; --testa-t:#123A4A; --croce:#E562AC; --croce-t:#3D1A3B; --rumore:#FF6F52; --rame:#D9A25A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --carta:#0E1530; --carta2:#151E3E; --superficie:#18223F; --inchiostro:#ECE8E0; --soft:#BFC3CF; --muto:#8B91A4;
+  --filetto:#2C375C; --griglia:rgba(236,232,224,.04);
+  --testa:#3CC6D2; --testa-t:#123A4A; --croce:#E562AC; --croce-t:#3D1A3B; --rumore:#FF6F52; --rame:#D9A25A;
+  color-scheme: dark;
+}
+*{ box-sizing:border-box; }
+[hidden]{ display:none !important; }
+body{
+  margin:0; background-color:var(--carta); color:var(--inchiostro); font-family:var(--serif); font-size:16px; line-height:1.5;
+  background-image:linear-gradient(var(--griglia) 1px, transparent 1px), linear-gradient(90deg, var(--griglia) 1px, transparent 1px);
+  background-size:20px 20px;
+}
+.pagina{ max-width:1120px; margin:0 auto; padding-inline:16px; padding-block:24px 48px; }
+header.testa{ display:flex; gap:20px; align-items:center; flex-wrap:wrap; margin-bottom:22px; }
+.moneta-logo{ width:54px; height:54px; flex:none; }
+.moneta-logo ellipse{ transform-origin:27px 27px; animation:gira 1.6s linear infinite; }
+@keyframes gira{ 0%{transform:scaleX(1)} 50%{transform:scaleX(.08)} 100%{transform:scaleX(1)} }
+@media (prefers-reduced-motion: reduce){ .moneta-logo ellipse{ animation:none; } }
+.eyebrow{ font-family:var(--sans); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muto); margin:0 0 4px; }
+h1{ font-size:clamp(26px, 4vw, 36px); line-height:1.1; margin:0; text-wrap:balance; font-weight:700; }
+.sottotitolo{ margin:6px 0 0; color:var(--soft); font-style:italic; max-width:60ch; }
+
+.esperimenti{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 20px; }
+.chip{ font-family:var(--sans); font-size:13px; border:1px solid var(--filetto); background:var(--superficie); color:var(--inchiostro);
+  border-radius:999px; padding:7px 12px; cursor:pointer; }
+.chip b{ color:var(--muto); font-weight:600; margin-right:4px; }
+.chip[aria-pressed="true"]{ background:var(--inchiostro); color:var(--carta); border-color:var(--inchiostro); }
+.chip[aria-pressed="true"] b{ color:inherit; opacity:.7; }
+.chip:focus-visible, button:focus-visible, input:focus-visible{ outline:2px solid var(--testa); outline-offset:2px; }
+
+.griglia{ display:grid; grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:20px; align-items:start; }
+@media (max-width: 860px){ .griglia{ grid-template-columns:minmax(0,1fr); } }
+.pannello{ background:var(--superficie); border:1px solid var(--filetto); border-radius:10px; padding:16px; }
+.pannello + .pannello{ margin-top:20px; }
+.pannello h2{ font-family:var(--sans); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muto); margin:0 0 12px; font-weight:700; }
+.consegna{ border-left:3px solid var(--croce); padding:4px 0 4px 12px; margin:0 0 16px; }
+.consegna h3{ margin:0 0 4px; font-size:19px; }
+.consegna p{ margin:0; color:var(--soft); }
+.consegna ol{ margin:6px 0 0; padding-left:20px; color:var(--soft); }
+.ricette{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+
+.circuito-box{ overflow-x:auto; border:1px solid var(--filetto); border-radius:8px; background:var(--carta); }
+#circuito{ display:block; min-height:90px; }
+.circuito-vuoto{ font-family:var(--sans); font-size:13px; color:var(--muto); padding:10px 12px; }
+
+.controlli{ display:grid; gap:12px; margin-top:14px; }
+.riga{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.etichetta{ font-family:var(--sans); font-size:12px; color:var(--muto); min-width:92px; }
+.seg{ display:inline-flex; border:1px solid var(--filetto); border-radius:8px; overflow:hidden; }
+.seg button{ font-family:var(--sans); font-size:14px; font-weight:600; border:0; background:var(--superficie); color:var(--inchiostro); padding:7px 12px; cursor:pointer; border-right:1px solid var(--filetto); }
+.seg button:last-child{ border-right:0; }
+.seg button[aria-pressed="true"]{ background:var(--inchiostro); color:var(--carta); }
+.seg button:disabled{ color:var(--muto); cursor:not-allowed; opacity:.5; }
+.mossa-btn{ font-family:var(--serif) !important; font-size:17px !important; min-width:44px; }
+.bottone{ font-family:var(--sans); font-size:14px; font-weight:600; border-radius:8px; border:1px solid var(--filetto); background:var(--superficie); color:var(--inchiostro); padding:8px 14px; cursor:pointer; }
+.bottone.primario{ background:var(--croce); border-color:var(--croce); color:#fff; font-size:15px; padding:10px 18px; }
+.bottone:disabled{ opacity:.45; cursor:not-allowed; }
+input[type=range]{ width:min(260px, 100%); accent-color:var(--rumore); }
+.valore{ font-family:var(--mono); font-size:14px; min-width:44px; font-variant-numeric:tabular-nums; }
+.nota{ font-family:var(--sans); font-size:12.5px; color:var(--muto); margin:0; }
+
+.freccette{ display:grid; gap:4px; }
+.fr-riga{ display:grid; grid-template-columns:70px 1fr 64px 52px; gap:8px; align-items:center; font-variant-numeric:tabular-nums; }
+.fr-riga .ris{ display:flex; gap:2px; }
+.fr-asse{ position:relative; height:20px; }
+.fr-asse::before{ content:""; position:absolute; left:50%; top:2px; bottom:2px; width:1px; background:var(--filetto); }
+.fr-freccia{ position:absolute; top:9px; height:3px; border-radius:2px; }
+.fr-freccia::after{ content:""; position:absolute; top:-4px; border:5px solid transparent; }
+.fr-freccia.pos{ left:50%; background:var(--testa); }
+.fr-freccia.pos::after{ right:-8px; border-left:7px solid var(--testa); }
+.fr-freccia.neg{ right:50%; background:var(--croce); }
+.fr-freccia.neg::after{ left:-8px; border-right:7px solid var(--croce); }
+.fr-val{ font-family:var(--mono); font-size:13px; text-align:right; color:var(--soft); }
+.fr-p{ font-family:var(--mono); font-size:13px; text-align:right; color:var(--muto); }
+
+.moneta{ display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; font-family:var(--serif); font-weight:700; font-size:11px; color:#fff; }
+.moneta.T{ background:var(--testa); } .moneta.C{ background:var(--croce); }
+
+.istogramma{ display:grid; gap:6px; }
+.ist-riga{ display:grid; grid-template-columns:70px 1fr auto; gap:8px; align-items:center; font-variant-numeric:tabular-nums; }
+.ist-barra{ height:22px; background:var(--carta2); border-radius:4px; overflow:hidden; }
+.ist-barra span{ display:block; height:100%; background:var(--testa); border-radius:4px; transition:width .35s ease; }
+.ist-barra span.evidenza{ background:var(--croce); }
+.ist-barra span.errore{ background:var(--rumore); }
+@media (prefers-reduced-motion: reduce){ .ist-barra span{ transition:none; } }
+.ist-num{ font-family:var(--mono); font-size:13px; text-align:right; color:var(--soft); white-space:nowrap; min-width:92px; }
+.riassunto{ font-size:17px; margin:12px 0 0; }
+.riassunto strong{ color:var(--croce); }
+.vista{ margin:0 0 10px; }
+
+.cassetti{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; margin:10px 0; }
+.cassetto{ border:1px solid var(--filetto); background:var(--carta); border-radius:8px; padding:10px 6px; text-align:center; cursor:pointer; font-family:var(--sans); font-size:13px; color:var(--soft); }
+.cassetto .n{ display:block; font-family:var(--serif); font-size:22px; font-weight:700; color:var(--inchiostro); }
+.cassetto[aria-pressed="true"]{ border-color:var(--croce); background:var(--croce-t); }
+.cassetto[aria-pressed="true"] .n::after{ content:" 🔑"; font-size:16px; }
+
+footer{ margin-top:28px; font-family:var(--sans); font-size:12.5px; color:var(--muto); max-width:80ch; }
+footer p{ margin:0 0 6px; }
+</style>
+
+<div class="pagina">
+  <header class="testa">
+    <svg class="moneta-logo" viewBox="0 0 54 54" aria-hidden="true">
+      <defs><linearGradient id="gm" x1="0" x2="1"><stop offset="0" stop-color="#0FA3B1"/><stop offset="1" stop-color="#C2187A"/></linearGradient></defs>
+      <ellipse cx="27" cy="27" rx="22" ry="22" fill="url(#gm)"/>
+    </svg>
+    <div>
+      <p class="eyebrow">La moneta che gira · il simulatore del libro - Giuseppe Innamorato</p>
+      <h1>Fai girare le monete</h1>
+      <p class="sottotitolo">Fino a tre monete quantistiche, le mosse del libro e la mano che le ferma. Scegli un esperimento o costruisci la tua ricetta.</p>
+    </div>
+  </header>
+
+  <nav class="esperimenti" id="esperimenti" aria-label="Esperimenti del libro"></nav>
+
+  <div class="griglia">
+    <div>
+      <section class="pannello" aria-labelledby="t-ricetta">
+        <div class="consegna" id="consegna"></div>
+        <h2 id="t-ricetta">La ricetta</h2>
+        <div class="circuito-box"><svg id="circuito" role="img" aria-label="Il circuito"></svg></div>
+
+        <div class="controlli" id="costruttore">
+          <div class="riga">
+            <span class="etichetta">Monete</span>
+            <div class="seg" id="seg-monete"></div>
+          </div>
+          <div class="riga">
+            <span class="etichetta">Mossa</span>
+            <div class="seg" id="seg-mossa"></div>
+          </div>
+          <div class="riga" id="riga-bersaglio">
+            <span class="etichetta" id="et-bersaglio">Su quale moneta</span>
+            <div class="seg" id="seg-bersaglio"></div>
+          </div>
+          <div class="riga" id="riga-controllo" hidden>
+            <span class="etichetta">Obbedisce</span>
+            <div class="seg" id="seg-obbedisce"></div>
+          </div>
+          <div class="riga">
+            <button class="bottone" id="aggiungi" type="button">Aggiungi la mossa</button>
+            <button class="bottone" id="togli" type="button">Togli l'ultima</button>
+            <button class="bottone" id="svuota" type="button">Svuota</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="pannello" id="pannello-freccette" aria-labelledby="t-freccette">
+        <h2 id="t-freccette">Le freccette, prima della mano</h2>
+        <div class="freccette" id="freccette"></div>
+        <p class="nota" style="margin-top:10px">Una freccetta per ogni risultato possibile (capitolo 10). Verso destra vuol dire più, verso sinistra meno: è la fase. La probabilità è la lunghezza al quadrato. La mano non vede le freccette: vede solo il risultato.</p>
+      </section>
+    </div>
+
+    <div>
+      <section class="pannello" aria-labelledby="t-mano">
+        <h2 id="t-mano">La mano</h2>
+        <div class="controlli" style="margin-top:0">
+          <div class="riga">
+            <span class="etichetta">Quante volte</span>
+            <div class="seg" id="seg-volte"></div>
+          </div>
+          <div class="riga">
+            <label class="etichetta" for="disturbo">Disturbo</label>
+            <input type="range" id="disturbo" min="0" max="20" step="1" value="0">
+            <span class="valore" id="val-disturbo">0 %</span>
+          </div>
+          <p class="nota">Il disturbo è la moneta che trema (capitolo 7): più lo alzi, più spesso l'ambiente tocca le monete, a ogni mossa e al momento della lettura. È tarato come l'app del laboratorio: sotto il 3 per cento la chiave si trova ancora nove volte su dieci.</p>
+          <div class="riga">
+            <button class="bottone primario" id="ferma" type="button">Ferma le monete</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="pannello" aria-labelledby="t-risultati">
+        <h2 id="t-risultati">Che cosa è uscito</h2>
+        <div class="riga vista" id="riga-vista" hidden>
+          <span class="etichetta">Guarda</span>
+          <div class="seg" id="seg-vista"></div>
+        </div>
+        <div class="istogramma" id="istogramma"></div>
+        <p class="riassunto" id="riassunto"></p>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <p>Questo simulatore fa i conti delle freccette sul tuo computer, come la palestra del capitolo 12: con tre monete bastano otto numeri. Una macchina vera sbaglia in modi più complicati del cursore «disturbo», ma la forma degli errori è quella.</p>
+    <p>Per gli esperimenti del libro puoi arrivare qui direttamente dai codici QR dei riquadri «Prova tu».</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  // ── motore: vettore di stato reale (con H, X, Z e CNOT le freccette restano reali) ──
+  // indice dei risultati: la moneta 1 è la cifra più a sinistra
+  const bit = (n, q, i) => (i >> (n - 1 - q)) & 1;
+  function statoIniziale(n){ const s = new Array(1 << n).fill(0); s[0] = 1; return s; }
+  function applica(s, n, m){
+    const N = s.length, r = s.slice();
+    if (m.g === "X"){ const k = 1 << (n - 1 - m.q); for (let i = 0; i < N; i++) r[i] = s[i ^ k]; }
+    else if (m.g === "Z"){ for (let i = 0; i < N; i++) if (bit(n, m.q, i)) r[i] = -s[i]; }
+    else if (m.g === "H"){ const k = 1 << (n - 1 - m.q), c = Math.SQRT1_2;
+      for (let i = 0; i < N; i++){ const j = i ^ k; r[i] = bit(n, m.q, i) ? c * (s[j] - s[i]) : c * (s[i] + s[j]); } }
+    else if (m.g === "CNOT"){ const k = 1 << (n - 1 - m.t);
+      for (let i = 0; i < N; i++) r[i] = bit(n, m.c, i) ? s[i ^ k] : s[i]; }
+    return r;
+  }
+  function evolvi(n, passi){ let s = statoIniziale(n); for (const m of passi) s = applica(s, n, m); return s; }
+  const coinvolte = m => m.g === "CNOT" ? [m.c, m.t] : [m.q];
+  function disturba(s, n, q, p){
+    if (Math.random() >= p) return s;
+    const t = Math.floor(Math.random() * 3);          // ribalta, segno meno, o tutti e due
+    if (t === 0 || t === 2) s = applica(s, n, {g:"X", q});
+    if (t === 1 || t === 2) s = applica(s, n, {g:"Z", q});
+    return s;
+  }
+  function campiona(s){
+    let u = Math.random(), acc = 0;
+    for (let i = 0; i < s.length; i++){ acc += s[i] * s[i]; if (u < acc) return i; }
+    return s.length - 1;
+  }
+  function esegui(n, passi, volte, p){
+    const conta = new Array(1 << n).fill(0);
+    const ideale = evolvi(n, passi);
+    for (let v = 0; v < volte; v++){
+      let s;
+      if (p === 0) s = ideale;
+      else { s = statoIniziale(n); for (const m of passi){ s = applica(s, n, m); for (const q of coinvolte(m)) s = disturba(s, n, q, p / 6); } }
+      let r = campiona(s);
+      if (p > 0) for (let q = 0; q < n; q++) if (Math.random() < p / 6) r ^= 1 << (n - 1 - q);  // errore di lettura
+      conta[r]++;
+    }
+    return conta;
+  }
+
+  // ── ricette ──
+  const M = (g, q) => ({g, q});
+  const CN = (c, t) => ({g:"CNOT", c, t});
+  function ricettaChiave(cassetto){          // cassetto 0–3 → TT, TC, CT, CC
+    const b = [(cassetto >> 1) & 1, cassetto & 1];
+    const cz = [M("H", 1), CN(0, 1), M("H", 1)];
+    const segna = [...[0,1].filter(q => !b[q]).map(q => M("X", q)), ...cz, ...[0,1].filter(q => !b[q]).map(q => M("X", q))];
+    const amplifica = [M("H",0), M("H",1), M("X",0), M("X",1), ...cz, M("X",0), M("X",1), M("H",0), M("H",1)];
+    const gruppi = [{nome:"assaggia", da:0, a:2}, {nome:"segna", da:2, a:2 + segna.length}, {nome:"amplifica", da:2 + segna.length, a:2 + segna.length + amplifica.length}];
+    return {passi:[M("H",0), M("H",1), ...segna, ...amplifica], gruppi};
+  }
+
+  const ESPERIMENTI = [
+    {id:"cap2", cap:"2", mosse:["H"], freccette:false, nome:"La moneta che gira", n:1, passi:[M("H",0)], volte:100,
+     testo:"Una moneta, fatta girare con la mossa H. Fermala 10, 100, 1.000 volte: le singole misure ballano, il totale molto meno. Dietro ogni lancio non c'è nessun pollice."},
+    {id:"cap4", cap:"4", mosse:["X","H"], freccette:false, nome:"Tre mosse", n:1, passi:[M("H",0)], volte:1000,
+     testo:"Prima di premere, scrivi la tua previsione. Poi prova le quattro ricette, con 1.000 misure ciascuna.",
+     ricette:[["H", [M("H",0)]], ["H, H", [M("H",0), M("H",0)]], ["X, H", [M("X",0), M("H",0)]], ["X, H, H", [M("X",0), M("H",0), M("H",0)]]]},
+    {id:"cap5", cap:"5", mosse:["X","H","CNOT"], freccette:false, nome:"I gemelli", n:2, passi:[M("H",0), CN(0,1)], volte:500, vista:true,
+     testo:"H sulla prima moneta, poi CNOT: ferma le due monete 500 volte e conta le coppie diverse. Poi togli la H, o la CNOT. E guarda solo la prima moneta: riesci a distinguerla da una moneta che gira da sola?",
+     ricette:[["gemelli", [M("H",0), CN(0,1)]], ["senza H", [CN(0,1)]], ["senza CNOT", [M("H",0)]]]},
+    {id:"cap6", cap:"6", mosse:["X","H","CNOT"], freccette:false, nome:"Trova la chiave", n:2, chiave:true, volte:100,
+     testo:"Nascondi la chiave in uno dei quattro cassetti e premi «Cerca»: la ricetta assaggia, segna e amplifica. Su 100 tentativi, quante volte la trova? Poi alza il disturbo, poco alla volta."},
+    {id:"cap7", cap:"7", mosse:["X","H","CNOT"], freccette:false, nome:"La moneta che trema", n:2, passi:[M("H",0), CN(0,1)], volte:1000, vista:true,
+     testo:"I gemelli con il disturbo a zero, poi al 5 e al 20 per cento: quante coppie diverse compaiono? Poi rifai la ricerca della chiave con gli stessi livelli.",
+     disturbi:[0, 5, 20]},
+    {id:"cap10", cap:"10", mosse:["X","H","Z"], nome:"La fase", n:1, passi:[M("H",0), M("H",0)], volte:100,
+     testo:"H, H: quante croci? Adesso metti Z fra le due H. E con Z da sola, riesci a vedere che cosa ha fatto? Guarda le freccette: Z cambia solo il segno.",
+     ricette:[["H, H", [M("H",0), M("H",0)]], ["H, Z, H", [M("H",0), M("Z",0), M("H",0)]], ["Z", [M("Z",0)]], ["H, Z", [M("H",0), M("Z",0)]]]},
+    {id:"cap11", cap:"11", nome:"Due alla n", n:3, passi:[M("H",0), M("H",1), M("H",2)], volte:1000,
+     testo:"Tre monete, H su ciascuna: quanti risultati diversi escono, e circa quante volte ciascuno? Poi i gemelli con le prime due e la terza ferma: quante freccette sono lunghe zero?",
+     ricette:[["H su tutte e tre", [M("H",0), M("H",1), M("H",2)]], ["gemelli + terza ferma", [M("H",0), CN(0,1)]], ["tre gemelli", [M("H",0), CN(0,1), CN(1,2)]]]},
+    {id:"libero", cap:"", nome:"Laboratorio libero", n:2, passi:[], volte:100,
+     testo:"Scegli quante monete, aggiungi le mosse una alla volta e guarda come cambiano le freccette. Poi ferma le monete."}
+  ];
+
+  // ── stato della pagina ──
+  const st = {esp:null, n:1, passi:[], gruppi:null, mossa:"H", bers:0, obb:1, volte:100, p:0, conta:null, vista:"tutte", cassetto:2};
+  const $ = id => document.getElementById(id);
+  const RIS = (n, i) => Array.from({length:n}, (_, q) => bit(n, q, i) ? "C" : "T");
+  const monete = arr => `<span class="ris">${arr.map(f => `<span class="moneta ${f}">${f}</span>`).join("")}</span>`;
+  const fmt = x => (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(2).replace(".", ",");
+  const pct = x => (Math.round(x * 1000) / 10).toString().replace(".", ",") + " %";
+
+  function seg(el, voci, attivo, onclick, disab){
+    el.innerHTML = "";
+    voci.forEach(([val, txt]) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = txt;
+      b.setAttribute("aria-pressed", String(val === attivo));
+      if (disab && disab(val)) b.disabled = true;
+      b.addEventListener("click", () => onclick(val)); el.appendChild(b);
+    });
+  }
+
+  function disegnaCircuito(){
+    const svg = $("circuito"), n = st.n, P = st.passi;
+    const X0 = 64, DX = 46, Y0 = 26, DY = 40;
+    const w = Math.max(360, X0 + P.length * DX + 70), h = Y0 + (n - 1) * DY + (st.gruppi ? 44 : 30);
+    svg.setAttribute("width", w); svg.setAttribute("height", h); svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    const css = getComputedStyle(document.documentElement);
+    const c = v => css.getPropertyValue(v).trim();
+    let o = "";
+    for (let q = 0; q < n; q++){
+      const y = Y0 + q * DY;
+      o += `<circle cx="18" cy="${y}" r="11" fill="${c("--testa")}"/><text x="18" y="${y+4}" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-weight="700" font-size="12" fill="#fff">T</text>`;
+      o += `<text x="36" y="${y+4}" font-family="Inter, Arial" font-size="11" fill="${c("--muto")}">${q+1}</text>`;
+      o += `<line x1="48" y1="${y}" x2="${w-40}" y2="${y}" stroke="${c("--muto")}" stroke-width="1.5"/>`;
+      o += `<path d="M${w-34},${y+6} a9,9 0 0 1 18,0" fill="none" stroke="${c("--inchiostro")}" stroke-width="1.5"/><line x1="${w-25}" y1="${y+6}" x2="${w-19}" y2="${y-5}" stroke="${c("--inchiostro")}" stroke-width="1.5"/>`;
+    }
+    P.forEach((m, k) => {
+      const x = X0 + k * DX + DX / 2;
+      if (m.g === "CNOT"){
+        const yc = Y0 + m.c * DY, yt = Y0 + m.t * DY;
+        o += `<line x1="${x}" y1="${yc}" x2="${x}" y2="${yt}" stroke="${c("--inchiostro")}" stroke-width="2"/>`;
+        o += `<circle cx="${x}" cy="${yc}" r="5" fill="${c("--inchiostro")}"/>`;
+        o += `<circle cx="${x}" cy="${yt}" r="11" fill="${c("--superficie")}" stroke="${c("--inchiostro")}" stroke-width="2"/>`;
+        o += `<line x1="${x-11}" y1="${yt}" x2="${x+11}" y2="${yt}" stroke="${c("--inchiostro")}" stroke-width="2"/><line x1="${x}" y1="${yt-11}" x2="${x}" y2="${yt+11}" stroke="${c("--inchiostro")}" stroke-width="2"/>`;
+      } else {
+        const y = Y0 + m.q * DY, col = m.g === "H" ? c("--croce") : m.g === "Z" ? c("--rame") : c("--inchiostro");
+        o += `<rect x="${x-15}" y="${y-15}" width="30" height="30" rx="5" fill="${c("--superficie")}" stroke="${col}" stroke-width="2"/>`;
+        o += `<text x="${x}" y="${y+6}" text-anchor="middle" font-family="Source Serif 4, Georgia, serif" font-weight="700" font-size="17" fill="${col}">${m.g}</text>`;
+      }
+    });
+    if (st.gruppi){
+      const yb = Y0 + (n - 1) * DY + 26;
+      st.gruppi.forEach(g => {
+        const x1 = X0 + g.da * DX + 4, x2 = X0 + g.a * DX - 4;
+        o += `<path d="M${x1},${yb-6} V${yb} H${x2} V${yb-6}" fill="none" stroke="${c("--croce")}" stroke-width="1.3"/>`;
+        o += `<text x="${(x1+x2)/2}" y="${yb+14}" text-anchor="middle" font-family="Inter, Arial" font-size="11" font-weight="600" fill="${c("--croce")}">${g.nome}</text>`;
+      });
+    }
+    svg.innerHTML = o;
+  }
+
+  function disegnaFreccette(){
+    const s = evolvi(st.n, st.passi);
+    const max = 1;
+    $("freccette").innerHTML = s.map((a, i) => {
+      const L = Math.abs(a) / max * 46, pos = a >= 0;
+      const fr = Math.abs(a) < 1e-9 ? "" : `<span class="fr-freccia ${pos ? "pos" : "neg"}" style="width:${L}%"></span>`;
+      return `<div class="fr-riga">${monete(RIS(st.n, i))}<div class="fr-asse">${fr}</div><span class="fr-val">${Math.abs(a) < 1e-9 ? "0" : fmt(a)}</span><span class="fr-p">${pct(a * a)}</span></div>`;
+    }).join("");
+  }
+
+  function disegnaRisultati(){
+    const el = $("istogramma"), n = st.n;
+    $("riga-vista").hidden = !(st.esp && st.esp.vista && n >= 2);
+    if (!st.conta){ el.innerHTML = `<p class="nota">Premi «Ferma le monete»: la mano ferma le monete ${st.volte.toLocaleString("it-IT")} volte e qui compare il conto.</p>`; $("riassunto").textContent = ""; return; }
+    let righe;
+    const tot = st.conta.reduce((a, b) => a + b, 0);
+    if (st.vista === "prima" && n >= 2){
+      const c = [0, 0]; st.conta.forEach((v, i) => c[bit(n, 0, i)] += v);
+      righe = c.map((v, f) => ({lab:[f ? "C" : "T"], v, cls:""}));
+    } else {
+      righe = st.conta.map((v, i) => {
+        const r = RIS(n, i);
+        let cls = "";
+        if (st.esp && st.esp.chiave) cls = i === st.cassetto ? "evidenza" : "";
+        else if (st.esp && st.esp.vista && n === 2 && r[0] !== r[1]) cls = "errore";
+        return {lab:r, v, cls};
+      });
+    }
+    const mx = Math.max(...righe.map(r => r.v), 1);
+    el.innerHTML = righe.map(r => `<div class="ist-riga">${monete(r.lab)}<div class="ist-barra"><span class="${r.cls}" style="width:${r.v / mx * 100}%"></span></div><span class="ist-num">${r.v.toLocaleString("it-IT")} · ${pct(r.v / tot)}</span></div>`).join("");
+    let msg = "";
+    if (st.esp && st.esp.chiave) msg = `La chiave trovata <strong>${st.conta[st.cassetto]} volte su ${tot}</strong>.`;
+    else if (st.esp && st.esp.vista && n === 2 && st.vista === "tutte"){
+      const div = st.conta[1] + st.conta[2]; msg = `Coppie diverse: <strong>${div}</strong> su ${tot}.`;
+    } else {
+      const diversi = st.conta.filter(v => v > 0).length;
+      msg = `Risultati diversi usciti: <strong>${diversi}</strong> su ${st.conta.length} possibili.`;
+    }
+    $("riassunto").innerHTML = msg;
+  }
+
+  function disegnaCostruttore(){
+    const chiave = st.esp && st.esp.chiave;
+    $("costruttore").hidden = !!chiave;
+    seg($("seg-monete"), [[1, "1"], [2, "2"], [3, "3"]], st.n, v => { st.n = v; st.passi = st.passi.filter(m => coinvolte(m).every(q => q < v)); st.gruppi = null; st.bers = Math.min(st.bers, v - 1); st.obb = Math.min(st.obb, v - 1); if (st.obb === st.bers) st.obb = (st.bers + 1) % v; nuovo(); });
+    const disponibili = (st.esp && st.esp.mosse) || ["X", "H", "Z", "CNOT"];
+    seg($("seg-mossa"), [["X", "X"], ["H", "H"], ["Z", "Z"], ["CNOT", "CNOT"]].filter(([m]) => disponibili.includes(m)), st.mossa, v => { st.mossa = v; if (v === "CNOT" && st.obb === st.bers) st.obb = (st.bers + 1) % st.n; disegnaCostruttore(); }, v => v === "CNOT" && st.n < 2);
+    [...$("seg-mossa").children].slice(0, 3).forEach(b => b.classList.add("mossa-btn"));
+    const qs = Array.from({length:st.n}, (_, q) => [q, "moneta " + (q + 1)]);
+    $("et-bersaglio").textContent = st.mossa === "CNOT" ? "Comanda" : "Su quale moneta";
+    seg($("seg-bersaglio"), qs, st.bers, v => { st.bers = v; if (st.obb === v) st.obb = (v + 1) % st.n; disegnaCostruttore(); });
+    $("riga-controllo").hidden = st.mossa !== "CNOT";
+    seg($("seg-obbedisce"), qs, st.obb, v => { st.obb = v; disegnaCostruttore(); }, v => v === st.bers);
+    $("togli").disabled = st.passi.length === 0; $("svuota").disabled = st.passi.length === 0;
+  }
+
+  function disegnaConsegna(){
+    const e = st.esp, el = $("consegna");
+    let h = `<h3>${e.cap ? "Capitolo " + e.cap + " · " : ""}${e.nome}</h3><p>${e.testo}</p>`;
+    if (e.ricette) h += `<div class="ricette">` + e.ricette.map((r, k) => `<button class="chip" type="button" data-r="${k}">${r[0]}</button>`).join("") + `</div>`;
+    if (e.disturbi) h += `<div class="ricette">` + e.disturbi.map(d => `<button class="chip" type="button" data-d="${d}">disturbo ${d} %</button>`).join("") + `</div>`;
+    if (e.chiave) h += `<div class="cassetti" role="group" aria-label="Dove nascondi la chiave">` + [0,1,2,3].map(k => `<button class="cassetto" type="button" data-c="${k}" aria-pressed="${k === st.cassetto}"><span class="n">${k + 1}</span>${RIS(2, k).join("")}</button>`).join("") + `</div><button class="bottone primario" type="button" id="cerca">Cerca</button>`;
+    el.innerHTML = h;
+    el.querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => { st.passi = e.ricette[+b.dataset.r][1].slice(); st.gruppi = null; nuovo(); }));
+    el.querySelectorAll("[data-d]").forEach(b => b.addEventListener("click", () => { st.p = +b.dataset.d / 100; $("disturbo").value = b.dataset.d; aggiornaDisturbo(); ferma(); }));
+    el.querySelectorAll("[data-c]").forEach(b => b.addEventListener("click", () => { st.cassetto = +b.dataset.c; impostaChiave(); disegnaConsegna(); nuovo(); }));
+    const cerca = el.querySelector("#cerca"); if (cerca) cerca.addEventListener("click", ferma);
+  }
+
+  function impostaChiave(){ const r = ricettaChiave(st.cassetto); st.passi = r.passi; st.gruppi = r.gruppi; }
+
+  function aggiornaDisturbo(){ $("val-disturbo").textContent = Math.round(st.p * 100) + " %"; }
+
+  function nuovo(){ st.conta = null; disegnaCircuito(); disegnaFreccette(); disegnaCostruttore(); disegnaRisultati(); }
+
+  function ferma(){ st.conta = esegui(st.n, st.passi, st.volte, st.p); disegnaRisultati(); }
+
+  function scegli(id, dalHash){
+    const e = ESPERIMENTI.find(x => x.id === id) || ESPERIMENTI[0];
+    st.esp = e; st.n = e.n; st.volte = e.volte; st.vista = "tutte"; st.gruppi = null;
+    if (e.chiave) impostaChiave(); else st.passi = e.passi.slice();
+    st.bers = 0; st.obb = Math.min(1, st.n - 1); st.mossa = "H";
+    $("pannello-freccette").hidden = e.freccette === false;
+    document.querySelectorAll("#esperimenti .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === e.id)));
+    rifaiVolte();
+    rifaiVista();
+    disegnaConsegna(); nuovo();
+    if (!dalHash) { try { history.replaceState(null, "", "#" + e.id); } catch (_) {} }
+  }
+  function rifaiVolte(){ seg($("seg-volte"), [[10, "10"], [100, "100"], [500, "500"], [1000, "1.000"]], st.volte, v => { st.volte = v; rifaiVolte(); }); }
+  function rifaiVista(){ seg($("seg-vista"), [["tutte", "tutte le monete"], ["prima", "solo la moneta 1"]], st.vista, v => { st.vista = v; rifaiVista(); disegnaRisultati(); }); }
+
+  // ── avvio ──
+  $("esperimenti").innerHTML = ESPERIMENTI.map(e => `<button class="chip" type="button" data-id="${e.id}" aria-pressed="false">${e.cap ? `<b>${e.cap}</b>` : ""}${e.nome}</button>`).join("");
+  document.querySelectorAll("#esperimenti .chip").forEach(b => b.addEventListener("click", () => scegli(b.dataset.id)));
+  $("aggiungi").addEventListener("click", () => {
+    const m = st.mossa === "CNOT" ? CN(st.bers, st.obb) : M(st.mossa, st.bers);
+    if (m.g === "CNOT" && (st.n < 2 || m.c === m.t)) return;
+    st.passi.push(m); st.gruppi = null; nuovo();
+  });
+  $("togli").addEventListener("click", () => { st.passi.pop(); st.gruppi = null; nuovo(); });
+  $("svuota").addEventListener("click", () => { st.passi = []; st.gruppi = null; nuovo(); });
+  $("disturbo").addEventListener("input", ev => { st.p = +ev.target.value / 100; aggiornaDisturbo(); });
+  $("ferma").addEventListener("click", ferma);
+  window.addEventListener("hashchange", () => scegli(location.hash.slice(1), true));
+  const iniziale = (location.hash || "").slice(1);
+  scegli(ESPERIMENTI.some(e => e.id === iniziale) ? iniziale : "cap2", true);
+  ferma();
+})();
+</script>
+
+</body></html>
