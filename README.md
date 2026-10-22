@@ -17,6 +17,12 @@ Per studenti delle superiori, curiosi di ogni età e chiunque voglia capire che 
 
 Tutte le versioni sono nella pagina delle [Release](https://github.com/giuseppeinnamorato/la-moneta-che-gira/releases).
 
+## Una copia di carta?
+
+Il libro è e resterà gratuito in digitale. Se però ti piacerebbe averlo anche su carta, da sfogliare, sottolineare o lasciare in biblioteca a scuola, fammelo sapere: se le richieste saranno abbastanza, lo pubblicherò su Amazon in versione cartacea, al prezzo più basso possibile.
+
+Scrivimi a ginnamorato1961@gmail.com, oppure lascia una ⭐ al repository: per me è un segnale che il libro è servito.
+
 ## Il simulatore
 
 🪙 **[Apri il simulatore online](https://giuseppeinnamorato.github.io/la-moneta-che-gira/materiali/simulatore.html)**, senza scaricare niente, anche dal telefono.
