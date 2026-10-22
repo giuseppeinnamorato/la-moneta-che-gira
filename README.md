@@ -11,11 +11,11 @@ Per studenti delle superiori, curiosi di ogni età e chiunque voglia capire che 
 
 ## Scarica il libro
 
-📖 **[Leggi il PDF](La%20moneta%20che%20gira.pdf)** direttamente qui su GitHub, oppure scaricalo con il pulsante di download.
+📖 **[Scarica il libro in PDF](https://github.com/giuseppeinnamorato/la-moneta-che-gira/releases/latest/download/La.moneta.che.gira.pdf)** (9 MB)
 
-📦 **[Scarica libro e materiali in un unico file zip](https://github.com/giuseppeinnamorato/la-moneta-che-gira/releases/latest)** (consigliato): dentro ci sono il PDF e la cartella `materiali`, già sistemati. Estrai lo zip e apri il PDF: i riquadri «Prova tu» aprono il simulatore con un clic.
+📦 **[Scarica libro e materiali in un unico file zip](https://github.com/giuseppeinnamorato/la-moneta-che-gira/releases/latest/download/la-moneta-che-gira.zip)** (7 MB, consigliato): dentro ci sono il PDF e la cartella `materiali`, già sistemati. Estrai lo zip e apri il PDF: i riquadri «Prova tu» aprono il simulatore con un clic.
 
-Letto qui su GitHub, il PDF si sfoglia bene, ma i link al simulatore non funzionano: per gli esperimenti usa lo zip o il simulatore online.
+Tutte le versioni sono nella pagina delle [Release](https://github.com/giuseppeinnamorato/la-moneta-che-gira/releases).
 
 ## Il simulatore
 
