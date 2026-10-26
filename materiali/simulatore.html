@@ -859,8 +859,14 @@ footer p{ margin:0 0 6px; }
     return { id, pag: parseInt(p, 10) || 0 };
   }
   const daLibro = leggiHash().pag;
-  // Vale sia sul disco sia online (GitHub Pages): il PDF sta accanto alla cartella materiali.
-  if (PDF_LIBRO) {
+  if (/^https?:$/.test(location.protocol)) {
+    // online (GitHub Pages): il PDF sta solo nella Release, dove i download vengono contati
+    const a = $("torna");
+    a.href = "https://github.com/giuseppeinnamorato/la-moneta-che-gira/releases/latest/download/La.moneta.che.gira.pdf";
+    a.textContent = "Scarica il libro";
+    a.hidden = false;
+  } else if (PDF_LIBRO) {
+    // sul disco: il PDF sta accanto alla cartella materiali
     const a = $("torna");
     a.href = "../" + encodeURIComponent(PDF_LIBRO) + (daLibro ? "#page=" + daLibro : "");
     a.textContent = daLibro ? "← Torna al libro" : "← Apri il libro";
