@@ -29,7 +29,7 @@ Scrivimi a ginnamorato1961@gmail.com, oppure lascia una ⭐ al repository: per m
 
 Fa girare fino a tre monete quantistiche con le mosse X, H, Z e CNOT, mostra le freccette prima della mano, ferma le monete da 10 a 1.000 volte e ha un cursore per il disturbo. Ogni capitolo ha il suo esperimento pronto.
 
-Nella versione scaricata il simulatore è il file `materiali/simulatore.html`: si apre con un doppio clic, funziona anche senza connessione, e nei riquadri «Prova tu» del libro basta un clic per arrivare all'esperimento giusto. Il pulsante «Torna al libro», in alto, riapre il PDF alla pagina da cui eri partito; nel simulatore online diventa «Apri il libro». Con Chrome conviene il Ctrl-clic (⌘-clic sul Mac), così il simulatore si apre in una nuova scheda.
+Nella versione scaricata il simulatore è il file `materiali/simulatore.html`: si apre con un doppio clic, funziona anche senza connessione, e nei riquadri «Prova tu» del libro basta un clic per arrivare all'esperimento giusto. Il pulsante «Torna al libro», in alto, riapre il PDF alla pagina da cui eri partito; nel simulatore online diventa «Scarica il libro». Con Chrome conviene il Ctrl-clic (⌘-clic sul Mac), così il simulatore si apre in una nuova scheda.
 
 Perché tutto funzioni, il PDF e la cartella `materiali` devono stare uno accanto all'altra, e il PDF non va rinominato.
 
@@ -67,4 +67,4 @@ In parole semplici: puoi leggerlo, copiarlo e passarlo a chi vuoi, e puoi usarlo
 
 ## Dello stesso autore
 
-*[Dentro la macchina](https://archive.org/details/dentro-la-macchina-21-settembre-2026)*, 2026: il primo viaggio, dentro un modello linguistico. Si legge gratuitamente su archive.org.
+*[Dentro la macchina](https://github.com/giuseppeinnamorato/dentro-la-macchina)*, 2026: il primo viaggio, dentro un modello linguistico. Si legge gratuitamente su GitHub.
